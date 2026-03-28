@@ -13,6 +13,8 @@ public:
     virtual void showReadings(
         const std::list<GlucoseReading>& readings, bool dataIsOld = false) const = 0;
     virtual void showNoData() const;
+    virtual bool needsFrequentRefresh() const;
+    virtual unsigned long getFrequentRefreshIntervalMs() const;
 };
 
 #endif

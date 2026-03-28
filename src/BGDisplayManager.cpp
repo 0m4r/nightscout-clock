@@ -47,6 +47,10 @@ void BGDisplayManager_::setup() {
     facesNames[4] = "Value and diff";
     faces.push_back(new BGDisplayFaceClock());
     facesNames[5] = "Clock and value";
+    faces.push_back(new BGDisplayFaceDiagnostics());
+    facesNames[6] = "Diagnostics";
+    faces.push_back(new BGDisplayFaceBatteryUptime());
+    facesNames[7] = "Battery and uptime";
 
     currentFaceIndex = SettingsManager.settings.default_clockface;
     if (currentFaceIndex >= faces.size()) {
@@ -76,19 +80,24 @@ void BGDisplayManager_::tick() { maybeRrefreshScreen(); }
 
 void BGDisplayManager_::maybeRrefreshScreen(bool force) {
     auto currentEpoch = ServerManager.getUtcEpoch();
+    auto currentMillis = millis();
     tm timeInfo = ServerManager.getTimezonedTime();
+    bool frequentRefresh = currentFace->needsFrequentRefresh();
+    unsigned long refreshIntervalMs = frequentRefresh ? currentFace->getFrequentRefreshIntervalMs() : 60000;
+    unsigned long long refreshClock = frequentRefresh ? currentMillis : currentEpoch;
 
     auto lastReading = bgDisplayManager.getLastDisplayedGlucoseReading();
 
     if (bgSourceManager.hasNewData(lastReading == NULL ? 0 : lastReading->epoch)) {
         DEBUG_PRINTLN("We have new data");
         bgDisplayManager.showData(bgSourceManager.getInstance().getGlucoseData());
-        lastRefreshEpoch = currentEpoch;
+        lastRefreshEpoch = refreshClock;
     } else {
         // We refresh the display every minue trying to match the exact :00 second
-        if (force || timeInfo.tm_sec == 0 && currentEpoch > lastRefreshEpoch ||
-            currentEpoch - lastRefreshEpoch > 60) {
-            lastRefreshEpoch = currentEpoch;
+        if (force || frequentRefresh && refreshClock - lastRefreshEpoch >= refreshIntervalMs ||
+            timeInfo.tm_sec == 0 && currentEpoch > lastRefreshEpoch ||
+            !frequentRefresh && currentEpoch - lastRefreshEpoch > 60) {
+            lastRefreshEpoch = refreshClock;
             if (displayedReadings.size() > 0) {
                 bool dataIsOld = displayedReadings.back().getSecondsAgo() >
                                  60 * SettingsManager.settings.bg_data_too_old_threshold_minutes;

@@ -8,8 +8,10 @@
 #include <vector>
 
 #include "BGDisplayFace.h"
+#include "BGDisplayFaceBatteryUptime.h"
 #include "BGDisplayFaceBigText.h"
 #include "BGDisplayFaceClock.h"
+#include "BGDisplayFaceDiagnostics.h"
 #include "BGDisplayFaceGraph.h"
 #include "BGDisplayFaceGraphAndBG.h"
 #include "BGDisplayFaceSimple.h"

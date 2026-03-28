@@ -48,6 +48,9 @@ float sampleSum = 0.0;
 float sampleAverage = 0.0;
 float brightnessPercent = 0.0;
 int lastBrightness = 0;
+unsigned long lastLowBatteryAlertMillis = 0;
+const unsigned long LOW_BATTERY_ALERT_INTERVAL_MS = 2UL * 60UL * 1000UL;
+const char* LOW_BATTERY_BEEP = "bat:d=32,o=6,b=220:c";
 
 // The getter for the instantiated singleton instance
 PeripheryManager_& PeripheryManager_::getInstance() {
@@ -154,6 +157,15 @@ void PeripheryManager_::tick() {
             sht31.readBoth(&CURRENT_TEMP, &CURRENT_HUM);
             CURRENT_TEMP += TEMP_OFFSET;
             CURRENT_HUM += HUM_OFFSET;
+        }
+        if (BATTERY_PERCENT <= 5) {
+            if (lastLowBatteryAlertMillis == 0 ||
+                currentMillis_BatTempHum - lastLowBatteryAlertMillis >= LOW_BATTERY_ALERT_INTERVAL_MS) {
+                PeripheryManager.playRTTTLString(LOW_BATTERY_BEEP);
+                lastLowBatteryAlertMillis = currentMillis_BatTempHum;
+            }
+        } else {
+            lastLowBatteryAlertMillis = 0;
         }
     }
 
