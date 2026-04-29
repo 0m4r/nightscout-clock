@@ -27,6 +27,7 @@ MelodyPlayer player(BUZZER_PIN, 1, LOW);
 Button2 button_left(BUTTON_UP_PIN);
 Button2 button_right(BUTTON_DOWN_PIN);
 Button2 button_select(BUTTON_SELECT_PIN);
+const byte BUZZER_VOLUME = 64;
 
 #define USED_PHOTOCELL LightDependentResistor::GL5516
 #define PHOTOCELL_SERIES_RESISTOR 10000
@@ -120,6 +121,7 @@ void PeripheryManager_::setup() {
     DEBUG_PRINTLN(F("Setup periphery"));
     startTime = millis();
     pinMode(LDR_PIN, INPUT);
+    player.setVolume(BUZZER_VOLUME);
 
     button_left.setClickHandler(left_button_pressed);
     button_right.setClickHandler(right_button_pressed);
