@@ -51,6 +51,8 @@ void BGDisplayManager_::setup() {
     facesNames[6] = "Diagnostics";
     faces.push_back(new BGDisplayFaceBatteryUptime());
     facesNames[7] = "Battery and uptime";
+    faces.push_back(new BGDisplayFaceBigTextRainbow());
+    facesNames[8] = "Rainbow big text";
 
     currentFaceIndex = SettingsManager.settings.default_clockface;
     if (currentFaceIndex >= faces.size()) {
