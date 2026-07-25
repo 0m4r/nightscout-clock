@@ -90,11 +90,22 @@ uint16_t fadeColor(uint16_t color) {
 // Draw the reading in the large font, centered in the region to the right of
 // the smiley (x in [SMILEY_SIZE, MATRIX_WIDTH]).
 void drawCenteredReadingRight(const String& text) {
+    int regionWidth = MATRIX_WIDTH - SMILEY_SIZE;
+
+    // Prefer the large font, but fall back to the small font when the value is
+    // too wide for the space beside the face (e.g. 4-character mmol/L readings
+    // like "22.3"), so it is centered and never clipped off the right edge.
     DisplayManager.setFont(FONT_TYPE::LARGE);
     int textWidth = (int)DisplayManager.getTextWidth(text.c_str(), 2);
-    int regionWidth = MATRIX_WIDTH - SMILEY_SIZE;
+    int baselineY = 7;  // large font (yAdvance 8) fills the full height
+    if (textWidth > regionWidth) {
+        DisplayManager.setFont(FONT_TYPE::MEDIUM);
+        textWidth = (int)DisplayManager.getTextWidth(text.c_str(), 2);
+        baselineY = 6;  // small font sits centered at this baseline
+    }
+
     int x = SMILEY_SIZE + max(0, (regionWidth - textWidth) / 2);
-    DisplayManager.printText(x, 7, text.c_str(), TEXT_ALIGNMENT::LEFT, 2, false);
+    DisplayManager.printText(x, baselineY, text.c_str(), TEXT_ALIGNMENT::LEFT, 2, false);
 }
 }  // namespace
 
