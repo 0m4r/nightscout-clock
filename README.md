@@ -23,7 +23,7 @@ _Nightscout Clock (or NSClock) is an open-source product aimed at helping caregi
 
 ## Here is what it can do
 
-- 6 colorful clockfaces
+- 10 colorful clockfaces
 - Can get glucose data from Dexcom Share, Nightscout, LibreLink Up or Medtrum EasyFollow
 - Supports mg/dl and mmol/l
 - 10 minutes setup through web browser
@@ -71,6 +71,7 @@ Nightscout Clock is a custom firmware for Ulanzi TC001. It can also run (with mi
 | Graph and value | <img width="500" alt="Graph and value" src="https://github.com/user-attachments/assets/db9046aa-5121-43fa-b367-807cdf3c5ef3" /> |  The dots on the right side replace the trend arrow.<br>2 white dots = horizontal arrow.<br>2 colored dots (white + green) = 45° arrow.<br>3 dots = vertical arrow.<br>4 dots = double arrow.<br>Colored dots above = upward trend.<br>Colored dots below = downward trend. <br /><br /> Dots under the value are the same as <br /> horizontal bars on the other faces.<br /> See "Simple" face for details |
 | Delta           | <img width="500" alt="Photo of the Nightscout Clock" src="https://github.com/user-attachments/assets/f8005f49-6e32-43f1-bd84-0bb4e4691d7f" /> |         |
 | Time and value  | <img width="500" alt="Time and value" src="https://github.com/user-attachments/assets/cd72bf15-85e3-4621-b5ca-d639c1849cd5" /> | The dots on the right side replace the trend arrow.<br>2 white dots = horizontal arrow.<br>2 colored dots (white + green) = 45° arrow.<br>3 dots = vertical arrow.<br>4 dots = double arrow.<br>Colored dots above = upward trend.<br>Colored dots below = downward trend. <br /><br /> For the bottom-side bars see "Simple" face for details |
+| Smiley          | _(screenshot to be added)_ | A round face whose expression reflects the glucose level next to the value: <br /> happy (green) when in range <br /> sad (blue) when below the low limit <br /> angry (red) when above the high limit <br /> neutral (gray) when the data is missing or too old. <br /><br /> The value uses large digits, falling back to a smaller font when it is too wide to fit (e.g. 4-character mmol/l readings). |
 
 ### Configuration web interface
 
@@ -107,6 +108,7 @@ Nightscout Clock is a custom firmware for Ulanzi TC001. It can also run (with mi
   - BIG DIGITS
   - Value, trend and delta
   - Clock and BG value (timezone is set in the clock's web interface)
+  - Smiley face (round face that is happy in range, sad below the low limit, angry above the high limit)
 - Changes color to gray if the data is too old
 - Smart data and screen update timings: read data once it appears, refresh screen when needed
 - API data source. The clock has a simple Nightscout-like API which can receive glucose values from an external source. The main purpose of this feature is the ability to test the clock during the clockfaces development. In order to activate this feature, select the API data source within the clock's Web UI. Here are the endpoints:
