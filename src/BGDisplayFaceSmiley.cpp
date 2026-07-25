@@ -72,6 +72,21 @@ const uint8_t features_neutral[] PROGMEM = {
     0b00000000,
 };
 
+// Fade an RGB565 color toward black by scaling each channel by FACE_DIM_NUM /
+// FACE_DIM_DEN. Used to draw the round face background slightly dimmed so it
+// reads as a soft badge behind the crisp cutout features and the reading.
+constexpr uint16_t FACE_DIM_NUM = 3;
+constexpr uint16_t FACE_DIM_DEN = 5;
+uint16_t fadeColor(uint16_t color) {
+    uint16_t r = (color >> 11) & 0x1F;
+    uint16_t g = (color >> 5) & 0x3F;
+    uint16_t b = color & 0x1F;
+    r = r * FACE_DIM_NUM / FACE_DIM_DEN;
+    g = g * FACE_DIM_NUM / FACE_DIM_DEN;
+    b = b * FACE_DIM_NUM / FACE_DIM_DEN;
+    return (r << 11) | (g << 5) | b;
+}
+
 // Draw the reading in the large font, centered in the region to the right of
 // the smiley (x in [SMILEY_SIZE, MATRIX_WIDTH]).
 void drawCenteredReadingRight(const String& text) {
@@ -118,8 +133,9 @@ void BGDisplayFaceSmiley::showReadings(
 
     DisplayManager.clearMatrix(false);
 
-    // Round face background, then the features punched out in black on top.
-    DisplayManager.drawBitmap(0, 0, face_disc, SMILEY_SIZE, SMILEY_SIZE, faceColor, false);
+    // Round face background (slightly faded), then the features punched out in
+    // black on top.
+    DisplayManager.drawBitmap(0, 0, face_disc, SMILEY_SIZE, SMILEY_SIZE, fadeColor(faceColor), false);
     DisplayManager.drawBitmap(0, 0, features, SMILEY_SIZE, SMILEY_SIZE, COLOR_BLACK, false);
 
     // Big reading, colored by level, centered beside the face.
@@ -135,7 +151,7 @@ void BGDisplayFaceSmiley::showReadings(
 
 void BGDisplayFaceSmiley::showNoData() const {
     DisplayManager.clearMatrix(false);
-    DisplayManager.drawBitmap(0, 0, face_disc, SMILEY_SIZE, SMILEY_SIZE, COLOR_GRAY, false);
+    DisplayManager.drawBitmap(0, 0, face_disc, SMILEY_SIZE, SMILEY_SIZE, fadeColor(COLOR_GRAY), false);
     DisplayManager.drawBitmap(0, 0, features_neutral, SMILEY_SIZE, SMILEY_SIZE, COLOR_BLACK, false);
     DisplayManager.setTextColor(COLOR_GRAY);
     String noDataText = SettingsManager.settings.bg_units == BG_UNIT::MMOLL ? "--.-" : "---";
