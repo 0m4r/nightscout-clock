@@ -62,6 +62,10 @@ void BGDisplayManager_::setup() {
     }
 
     currentFace = (faces[currentFaceIndex]);
+    // The boot/default face is assigned here rather than through setFace(), so
+    // give it the same activation hook the switch path uses to initialize its
+    // per-view state.
+    currentFace->onActivate();
 }
 
 std::map<int, String> BGDisplayManager_::getFaces() { return facesNames; }
