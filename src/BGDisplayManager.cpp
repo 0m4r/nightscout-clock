@@ -103,11 +103,16 @@ void BGDisplayManager_::maybeRrefreshScreen(bool force) {
             if (displayedReadings.size() > 0) {
                 bool dataIsOld = displayedReadings.back().getSecondsAgo() >
                                  60 * SettingsManager.settings.bg_data_too_old_threshold_minutes;
-                DisplayManager.clearMatrix();
+                // clearMatrix(false) clears the back buffer without pushing a
+                // blank frame to the LEDs. On WS2812 every matrix->show() is a
+                // ~7-8ms interrupts-disabled blit, so the old clearMatrix() here
+                // both wasted a full blit and caused a visible blank flash before
+                // the face redrew.
+                DisplayManager.clearMatrix(false);
                 currentFace->showReadings(displayedReadings, dataIsOld);
                 DisplayManager.update();
             } else {
-                DisplayManager.clearMatrix();
+                DisplayManager.clearMatrix(false);
                 currentFace->showNoData();
                 DisplayManager.update();
             }
