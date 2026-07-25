@@ -13,7 +13,14 @@ public:
 private:
     void showDateTimePage(const std::list<GlucoseReading>& readings, bool dataIsOld) const;
     int getScrollX(int contentWidth) const;
-    String formatDateTime() const;
+    const String& formatDateTime() const;
+
+    // Cache for the date/time string so the 60fps scroll loop does not call the
+    // relatively expensive (and potentially blocking) getLocalTime() on every
+    // frame, and does not reallocate the String while the minute is unchanged.
+    mutable unsigned long lastTimeCheckMillis = 0;
+    mutable int cachedMinuteKey = -1;
+    mutable String cachedDateTime;
 };
 
 #endif

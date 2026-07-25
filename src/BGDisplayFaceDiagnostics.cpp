@@ -20,7 +20,7 @@ void BGDisplayFaceDiagnostics::showReadings(
 }
 
 void BGDisplayFaceDiagnostics::showNoData() const {
-    String dateTimeText = formatDateTime();
+    const String& dateTimeText = formatDateTime();
     String noDataText = SettingsManager.settings.bg_units == BG_UNIT::MMOLL ? "--.-" : "---";
     int dateTimeWidth = (int)DisplayManager.getTextWidth(dateTimeText.c_str(), 2);
     int noDataWidth = (int)DisplayManager.getTextWidth(noDataText.c_str(), 2);
@@ -49,7 +49,7 @@ unsigned long BGDisplayFaceDiagnostics::getFrequentRefreshIntervalMs() const {
 void BGDisplayFaceDiagnostics::showDateTimePage(
     const std::list<GlucoseReading>& readings, bool dataIsOld) const {
     auto lastReading = readings.back();
-    String dateTimeText = formatDateTime();
+    const String& dateTimeText = formatDateTime();
     String printableReading = getPrintableReading(lastReading.sgv);
     int dateTimeWidth = (int)DisplayManager.getTextWidth(dateTimeText.c_str(), 2);
     int readingWidth = (int)DisplayManager.getTextWidth(printableReading.c_str(), 2);
@@ -85,14 +85,30 @@ int BGDisplayFaceDiagnostics::getScrollX(int contentWidth) const {
     return (int)position;
 }
 
-String BGDisplayFaceDiagnostics::formatDateTime() const {
-    tm timeinfo = ServerManager.getTimezonedTime();
-    char dateTimeBuffer[20];
+const String& BGDisplayFaceDiagnostics::formatDateTime() const {
+    unsigned long now = millis();
 
-    snprintf(
-        dateTimeBuffer, sizeof(dateTimeBuffer), "%s %02d/%02d %02d:%02d",
-        WEEKDAY_NAMES[timeinfo.tm_wday], timeinfo.tm_mday, timeinfo.tm_mon + 1, timeinfo.tm_hour,
-        timeinfo.tm_min);
+    // getTimezonedTime() wraps getLocalTime(), which is comparatively expensive
+    // and can briefly block, so re-read the clock at most about once per second
+    // even though this runs at the scroll frame rate.
+    if (cachedDateTime.length() == 0 || now - lastTimeCheckMillis >= 1000) {
+        lastTimeCheckMillis = now;
+        tm timeinfo = ServerManager.getTimezonedTime();
 
-    return String(dateTimeBuffer);
+        // The rendered text only shows down to the minute, so only rebuild the
+        // String when the minute actually changes.
+        int minuteKey =
+            ((timeinfo.tm_mon * 32 + timeinfo.tm_mday) * 24 + timeinfo.tm_hour) * 60 + timeinfo.tm_min;
+        if (minuteKey != cachedMinuteKey) {
+            cachedMinuteKey = minuteKey;
+            char dateTimeBuffer[20];
+            snprintf(
+                dateTimeBuffer, sizeof(dateTimeBuffer), "%s %02d/%02d %02d:%02d",
+                WEEKDAY_NAMES[timeinfo.tm_wday], timeinfo.tm_mday, timeinfo.tm_mon + 1,
+                timeinfo.tm_hour, timeinfo.tm_min);
+            cachedDateTime = String(dateTimeBuffer);
+        }
+    }
+
+    return cachedDateTime;
 }
