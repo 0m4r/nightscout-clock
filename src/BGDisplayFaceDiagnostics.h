@@ -21,6 +21,12 @@ private:
     mutable unsigned long lastTimeCheckMillis = 0;
     mutable int cachedMinuteKey = -1;
     mutable String cachedDateTime;
+
+    // True while the content is wider than the matrix and therefore scrolling.
+    // Updated in getScrollX and read by needsFrequentRefresh so a static,
+    // centered frame does not keep redrawing at the scroll frame rate. Starts
+    // true so the first render happens at the frequent rate and can measure.
+    mutable bool contentScrolls = true;
 };
 
 #endif

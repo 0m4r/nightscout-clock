@@ -9,8 +9,12 @@ constexpr int STATUS_ITEM_SPACING = 2;
 constexpr int ARROW_SPACING = 1;
 constexpr int ARROW_WIDTH = 5;
 constexpr int DATETIME_SCROLL_LEFT_PADDING = 2;
-constexpr unsigned long DATETIME_SCROLL_FRAME_MS = 16;
-constexpr float DATETIME_SCROLL_STEP_PIXELS = 0.18f;
+// ~30fps. Each frame drives a full WS2812 blit (~7-8ms, interrupts disabled),
+// so 60fps left little headroom for WiFi/buttons; 30fps still scrolls smoothly.
+// The step is scaled with the frame time to keep the on-screen scroll speed the
+// same (speed = step / frame_ms).
+constexpr unsigned long DATETIME_SCROLL_FRAME_MS = 33;
+constexpr float DATETIME_SCROLL_STEP_PIXELS = 0.37f;
 const char* WEEKDAY_NAMES[] = {"SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"};
 }  // namespace
 
@@ -40,7 +44,7 @@ void BGDisplayFaceDiagnostics::showNoData() const {
     DisplayManager.update();
 }
 
-bool BGDisplayFaceDiagnostics::needsFrequentRefresh() const { return true; }
+bool BGDisplayFaceDiagnostics::needsFrequentRefresh() const { return contentScrolls; }
 
 unsigned long BGDisplayFaceDiagnostics::getFrequentRefreshIntervalMs() const {
     return DATETIME_SCROLL_FRAME_MS;
@@ -72,7 +76,11 @@ void BGDisplayFaceDiagnostics::showDateTimePage(
 }
 
 int BGDisplayFaceDiagnostics::getScrollX(int contentWidth) const {
-    if (contentWidth <= MATRIX_WIDTH) {
+    // When everything fits we render a static, centered frame; there is nothing
+    // to animate, so drop back to the normal per-minute refresh (see
+    // needsFrequentRefresh) instead of redrawing at the scroll frame rate.
+    contentScrolls = contentWidth > MATRIX_WIDTH;
+    if (!contentScrolls) {
         return max(0, (MATRIX_WIDTH - contentWidth) / 2);
     }
 
