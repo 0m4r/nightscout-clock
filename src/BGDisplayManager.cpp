@@ -74,6 +74,7 @@ void BGDisplayManager_::setFace(int id) {
     if (id < faces.size()) {
         currentFaceIndex = id;
         currentFace = (faces[currentFaceIndex]);
+        currentFace->onActivate();
         DisplayManager.clearMatrix();
         lastRefreshMillis = 0;
         lastRefreshEpochSec = 0;

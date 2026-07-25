@@ -51,6 +51,14 @@ void BGDisplayFaceDiagnostics::showNoData() const {
 
 bool BGDisplayFaceDiagnostics::needsFrequentRefresh() const { return contentScrolls; }
 
+void BGDisplayFaceDiagnostics::onActivate() const {
+    // Re-arm the frequent-refresh path: assume the content scrolls until the
+    // next getScrollX measures it. Without this, returning to this face after
+    // it was last shown with static (fitting) content would leave contentScrolls
+    // false, so the first frame would be scheduled at the per-minute rate.
+    contentScrolls = true;
+}
+
 unsigned long BGDisplayFaceDiagnostics::getFrequentRefreshIntervalMs() const {
     return DATETIME_SCROLL_FRAME_MS;
 }
