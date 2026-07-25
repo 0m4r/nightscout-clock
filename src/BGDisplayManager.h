@@ -16,6 +16,7 @@
 #include "BGDisplayFaceGraph.h"
 #include "BGDisplayFaceGraphAndBG.h"
 #include "BGDisplayFaceSimple.h"
+#include "BGDisplayFaceSmiley.h"
 #include "BGDisplayFaceValueAndDiff.h"
 #include "BGSource.h"
 

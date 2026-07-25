@@ -53,6 +53,8 @@ void BGDisplayManager_::setup() {
     facesNames[7] = "Battery and uptime";
     faces.push_back(new BGDisplayFaceBigTextRainbow());
     facesNames[8] = "Rainbow big text";
+    faces.push_back(new BGDisplayFaceSmiley());
+    facesNames[9] = "Smiley";
 
     currentFaceIndex = SettingsManager.settings.default_clockface;
     if (currentFaceIndex >= faces.size()) {
