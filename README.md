@@ -114,6 +114,7 @@ Nightscout Clock is a custom firmware for Ulanzi TC001. It can also run (with mi
 - API data source. The clock has a simple Nightscout-like API which can receive glucose values from an external source. The main purpose of this feature is the ability to test the clock during the clockfaces development. In order to activate this feature, select the API data source within the clock's Web UI. Here are the endpoints:
   - /api/v1/entries POST endpoint receives an array of Nightscout-like entries. The only significant fields are `sgv`, `date` and `trend` or `direction`. Due to the limited memory the API is stable when sent less than 10 recotds
   - /api/v1/entries DELETE endpoint deletes all entries regardless of the payload
+  - `scripts/ns_emulator.py` is a helper that pushes sample readings to this API for testing (e.g. to exercise clock-face moods). Point its `nightscout_url` at your clock, then run `python scripts/ns_emulator.py --one-value 110` for a single reading or `--sin` for a sinusoid history; see the script header for a curl example. The script's docstring lists handy values for the different faces.
 - Firmware versioning
 - Alarms with configurable Thresholds, snooze times and silence intervals
 - To turn the device on or off press both arrow buttons for 3 seconds
