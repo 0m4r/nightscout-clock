@@ -96,7 +96,12 @@ public:
     static void drawTimerBlocks(GlucoseReading lastReading, int width, int xPosition, int yPosition);
 
 private:
-    unsigned long long lastRefreshEpoch;
+    // Frequent-refresh faces (animations) are timed in millis since boot; normal
+    // faces refresh on the wall-clock minute and are timed in UTC epoch seconds.
+    // These are kept in separate fields so a face switch never compares a millis
+    // value against an epoch value (which previously underflowed).
+    unsigned long lastRefreshMillis;
+    unsigned long lastRefreshEpochSec;
 };
 
 extern BGDisplayManager_& bgDisplayManager;

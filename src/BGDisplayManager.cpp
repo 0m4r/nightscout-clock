@@ -73,7 +73,8 @@ void BGDisplayManager_::setFace(int id) {
         currentFaceIndex = id;
         currentFace = (faces[currentFaceIndex]);
         DisplayManager.clearMatrix();
-        lastRefreshEpoch = 0;
+        lastRefreshMillis = 0;
+        lastRefreshEpochSec = 0;
         tick();
     }
 }
@@ -86,20 +87,27 @@ void BGDisplayManager_::maybeRrefreshScreen(bool force) {
     tm timeInfo = ServerManager.getTimezonedTime();
     bool frequentRefresh = currentFace->needsFrequentRefresh();
     unsigned long refreshIntervalMs = frequentRefresh ? currentFace->getFrequentRefreshIntervalMs() : 60000;
-    unsigned long long refreshClock = frequentRefresh ? currentMillis : currentEpoch;
 
     auto lastReading = bgDisplayManager.getLastDisplayedGlucoseReading();
 
     if (bgSourceManager.hasNewData(lastReading == NULL ? 0 : lastReading->epoch)) {
         DEBUG_PRINTLN("We have new data");
         bgDisplayManager.showData(bgSourceManager.getInstance().getGlucoseData());
-        lastRefreshEpoch = refreshClock;
+        lastRefreshMillis = currentMillis;
+        lastRefreshEpochSec = currentEpoch;
     } else {
-        // We refresh the display every minue trying to match the exact :00 second
-        if (force || frequentRefresh && refreshClock - lastRefreshEpoch >= refreshIntervalMs ||
-            timeInfo.tm_sec == 0 && currentEpoch > lastRefreshEpoch ||
-            !frequentRefresh && currentEpoch - lastRefreshEpoch > 60) {
-            lastRefreshEpoch = refreshClock;
+        // Frequent faces animate on a millis interval; normal faces refresh once
+        // per wall-clock minute, trying to match the exact :00 second.
+        bool refreshDue;
+        if (frequentRefresh) {
+            refreshDue = force || currentMillis - lastRefreshMillis >= refreshIntervalMs;
+        } else {
+            refreshDue = force || (timeInfo.tm_sec == 0 && currentEpoch > lastRefreshEpochSec) ||
+                         currentEpoch - lastRefreshEpochSec > 60;
+        }
+        if (refreshDue) {
+            lastRefreshMillis = currentMillis;
+            lastRefreshEpochSec = currentEpoch;
             if (displayedReadings.size() > 0) {
                 bool dataIsOld = displayedReadings.back().getSecondsAgo() >
                                  60 * SettingsManager.settings.bg_data_too_old_threshold_minutes;
