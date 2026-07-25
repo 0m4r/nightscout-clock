@@ -231,6 +231,11 @@ void DisplayManager_::HSVtext(int16_t x, int16_t y, const char* text, bool clear
 
 void DisplayManager_::showFatalError(String errorMessage) {
     DEBUG_PRINTF("Fatal error: %s\n", errorMessage.c_str());
+    // currentFont is global state left behind by whichever face rendered last.
+    // The large font (yAdvance 8) at the y=6 baseline used below would be pushed
+    // up and clipped ("shifted to the top"), so pin the small font (yAdvance 6)
+    // that this baseline is centered for.
+    setFont(FONT_TYPE::SMALL);
     setTextColor(COLOR_GRAY);
 
     auto startMills = millis();
