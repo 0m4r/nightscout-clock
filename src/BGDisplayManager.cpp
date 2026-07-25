@@ -10,6 +10,9 @@
 #include "SettingsManager.h"
 #include "globals.h"
 
+#include "BGDisplayFaceWithAge.h" // Added for BGDisplayFaceWithAge
+#include "BGDisplayFaceSmiley.h" // Added for BGDisplayFaceSmiley
+
 // The getter for the instantiated singleton instance
 BGDisplayManager_& BGDisplayManager_::getInstance() {
     static BGDisplayManager_ instance;
@@ -42,6 +45,7 @@ void BGDisplayManager_::setup() {
     facesNames[1] = "Full graph";
     faces.push_back(new BGDisplayFaceGraphAndBG());
     facesNames[2] = "Graph and BG";
+    // Add new faces from a313377, excluding the existing faces from the HEAD section, and ensuring existing are not duplicated.
     faces.push_back(new BGDisplayFaceBigText());
     facesNames[3] = "Big text";
     faces.push_back(new BGDisplayFaceValueAndDiff());
@@ -56,6 +60,8 @@ void BGDisplayManager_::setup() {
     facesNames[8] = "Rainbow big text";
     faces.push_back(new BGDisplayFaceSmiley());
     facesNames[9] = "Smiley";
+    faces.push_back(new BGDisplayFaceWithAge()); // Added this one as well.
+    facesNames[10] = "With Age";
 
     configureFaceCycle();
 
@@ -70,6 +76,10 @@ void BGDisplayManager_::setup() {
     }
 
     currentFace = (faces[currentFaceIndex]);
+    // The boot/default face is assigned here rather than through setFace(), so
+    // give it the same activation hook the switch path uses to initialize its
+    // per-view state.
+    // currentFace->onActivate(); // Removed as per plan, belongs to screen refresh PR.
 }
 
 void BGDisplayManager_::configureFaceCycle() {
@@ -258,7 +268,61 @@ void BGDisplayManager_::showData(std::list<GlucoseReading> glucoseReadings) {
 GlucoseReading* BGDisplayManager_::getLastDisplayedGlucoseReading() {
     if (displayedReadings.size() > 0) {
         return &displayedReadings.back();
-    } else {
-        return NULL;
     }
+    return NULL;
+}
+
+void BGDisplayManager_::drawTimerBlocks(
+    GlucoseReading lastReading, int width, int xPosition, int yPosition) {
+    const int MAX_BLOXCS = 5;  // maximum number of blocks to draw
+
+    int blocksCount = lastReading.getSecondsAgo() / 60;
+    if (blocksCount > MAX_BLOXCS) {
+        blocksCount = MAX_BLOXCS;  // we draw maximum 5 lines
+    }
+    if (blocksCount <= 0) {
+#ifdef DEBUG_DISPLAY
+        DEBUG_PRINTLN("No blocks to draw, not drawing timer blocks");
+#endif
+        return;
+    }
+
+    // minimal block size is 1 pixel, size between blocks is 1 pixel, so we get width, subtract spaces
+    // between lines and divide by the maximum number of lines
+    int blockSize = (width - 4) / MAX_BLOXCS;
+    if (blockSize < 1) {
+#ifdef DEBUG_DISPLAY
+        DEBUG_PRINTLN("Block size is less than 1, not drawing timer blocks");
+#endif
+        return;
+    }
+
+    // Now let\'s alter xPosition to center the blocks in the available space
+    xPosition += (width - (blockSize * MAX_BLOXCS + (MAX_BLOXCS - 1))) / 2;
+
+    uint16_t color = COLOR_GREEN;
+    if (lastReading.getSecondsAgo() >= 60 * SettingsManager.settings.bg_data_too_old_threshold_minutes) {
+        color = COLOR_GRAY;  // old data
+    } else if (lastReading.getSecondsAgo() >= (MAX_BLOXCS + 1) * 60) {
+        color = COLOR_YELLOW;  // warning data
+    }
+#ifdef DEBUG_DISPLAY
+    DEBUG_PRINTF(
+        "Drawing %d blocks of size %d at position (%d, %d) with color %04X", blocksCount, blockSize,
+        xPosition, yPosition, color);
+#endif
+
+    for (int i = 0; i < blocksCount; i++) {
+        int x = xPosition + i * (blockSize + 1);  // +1 for the space between blocks
+        for (int j = 0; j < blockSize; j++) {
+            DisplayManager.drawPixel(x + j, yPosition, color, false);
+        }
+    }
+}
+
+GlucoseReading* BGDisplayManager_::getLastDisplayedGlucoseReading() {
+    if (displayedReadings.size() > 0) {
+        return &displayedReadings.back();
+    }
+    return NULL;
 }
