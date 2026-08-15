@@ -1,5 +1,6 @@
 #include "BGDisplayManager.h"
 
+<<<<<<< HEAD
 #include <algorithm>
 #include <list>
 
@@ -46,8 +47,6 @@ void BGDisplayManager_::setup() {
     facesNames[3] = "Big text";
     faces.push_back(new BGDisplayFaceValueAndDiff());
     facesNames[4] = "Value and diff";
-    faces.push_back(new BGDisplayFaceClock());
-    facesNames[5] = "Clock and value";
     faces.push_back(new BGDisplayFaceDiagnostics());
     facesNames[6] = "Diagnostics";
     faces.push_back(new BGDisplayFaceBatteryUptime());
@@ -189,76 +188,4 @@ void BGDisplayManager_::updateFaceCycle() {
 void BGDisplayManager_::tick() {
     updateFaceCycle();
     maybeRrefreshScreen();
-}
-
-void BGDisplayManager_::commitRenderedState(bool dataIsOld) {
-    lastRenderedDataWasOld = dataIsOld;
-    lastRefreshEpoch = ServerManager.getUtcEpoch();
-}
-
-void BGDisplayManager_::runRenderCycle(RenderReason reason, const tm& timeInfo) {
-    bool dataIsOld = displayedReadings.size() > 0 &&
-                     displayedReadings.back().getSecondsAgo() >
-                         60 * SettingsManager.settings.bg_data_too_old_threshold_minutes;
-    RenderContext ctx{reason, timeInfo, dataIsOld, lastRenderedDataWasOld, displayedReadings};
-
-    switch (currentFace->getRenderDecision(ctx)) {
-        case RenderDecision::NONE:
-            return;
-        case RenderDecision::PARTIAL:
-            currentFace->renderPartial(ctx);
-            DisplayManager.update();
-            commitRenderedState(dataIsOld);
-            return;
-        case RenderDecision::FULL:
-            DisplayManager.clearMatrix();
-            if (displayedReadings.size() > 0) {
-                currentFace->showReadings(displayedReadings, dataIsOld);
-            } else {
-                currentFace->showNoData();
-            }
-            DisplayManager.update();
-            commitRenderedState(dataIsOld);
-            return;
-    }
-}
-
-void BGDisplayManager_::maybeRrefreshScreen(bool force) {
-    auto currentEpoch = ServerManager.getUtcEpoch();
-    tm timeInfo = ServerManager.getTimezonedTime();
-
-    auto lastReading = bgDisplayManager.getLastDisplayedGlucoseReading();
-
-    if (bgSourceManager.hasNewData(lastReading == NULL ? 0 : lastReading->epoch)) {
-        DEBUG_PRINTLN("We have new data");
-        bgDisplayManager.showData(bgSourceManager.getInstance().getGlucoseData());
-    } else {
-        // We refresh the display every minue trying to match the exact :00 second
-        if (force) {
-            runRenderCycle(RenderReason::FORCED, timeInfo);
-        } else if (
-            timeInfo.tm_sec == 0 && currentEpoch > lastRefreshEpoch ||
-            currentEpoch - lastRefreshEpoch > 60) {
-            runRenderCycle(RenderReason::TIME_TICK, timeInfo);
-        }
-    }
-}
-
-void BGDisplayManager_::showData(std::list<GlucoseReading> glucoseReadings) {
-    if (glucoseReadings.size() == 0) {
-        displayedReadings.clear();
-        runRenderCycle(RenderReason::NEW_DATA, ServerManager.getTimezonedTime());
-        return;
-    }
-
-    displayedReadings = glucoseReadings;
-    runRenderCycle(RenderReason::NEW_DATA, ServerManager.getTimezonedTime());
-}
-
-GlucoseReading* BGDisplayManager_::getLastDisplayedGlucoseReading() {
-    if (displayedReadings.size() > 0) {
-        return &displayedReadings.back();
-    } else {
-        return NULL;
-    }
 }

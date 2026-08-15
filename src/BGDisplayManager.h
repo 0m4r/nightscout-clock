@@ -18,6 +18,7 @@
 #include "BGDisplayFaceSimple.h"
 #include "BGDisplayFaceSmiley.h"
 #include "BGDisplayFaceValueAndDiff.h"
+#include "BGDisplayFaceWithAge.h"
 #include "BGSource.h"
 
 struct GlucoseInterval {
@@ -84,13 +85,13 @@ private:
     bool faceCycleTimerStarted = false;
     unsigned long lastFaceCycleMillis = 0;
     std::vector<int> faceCycleFaces;
-    unsigned long long lastRefreshEpoch = 0;
+    unsigned long long lastRefreshEpoch = 0; // Made private
 
     void configureFaceCycle();
     void updateFaceCycle();
     void resetFaceCycleTimer();
-    void runRenderCycle(RenderReason reason, const tm& timeInfo);
-    void commitRenderedState(bool dataIsOld);
+    void runRenderCycle(RenderReason reason, const tm& timeInfo); // Made private
+    void commitRenderedState(bool dataIsOld); // Made private
 
 public:
     static BGDisplayManager_& getInstance();
@@ -105,10 +106,10 @@ public:
     int getCurrentFaceId();
 
     void setFace(int id);
-    void showNextFace();
-    void showPreviousFace();
+    void showNextFace(); // Kept public
+    void showPreviousFace(); // Kept public
 
-    static void drawTimerBlocks(GlucoseReading lastReading, int width, int xPosition, int yPosition);
+    static void drawTimerBlocks(GlucoseReading lastReading, int width, int xPosition, int yPosition); // Kept public
 };
 
 extern BGDisplayManager_& bgDisplayManager;

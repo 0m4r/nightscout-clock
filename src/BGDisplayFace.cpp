@@ -6,12 +6,19 @@ void BGDisplayFace::showNoData() const {
     DisplayManager.printText(0, 6, "No data", TEXT_ALIGNMENT::CENTER, 0);
 }
 
-bool BGDisplayFace::needsFrequentRefresh() const { return false; }
+<<<<<<< HEAD
+RenderDecision BGDisplayFace::getRenderDecision(const RenderContext& ctx) const {
+    if (ctx.reason == RenderReason::TIME_TICK) {
+        if (ctx.dataIsOld != ctx.wasDataOld) {
+            return RenderDecision::FULL;
+        }
+        return RenderDecision::NONE;
+    }
 
-unsigned long BGDisplayFace::getFrequentRefreshIntervalMs() const { return 5000; }
+    return RenderDecision::FULL;
+}
 
-void BGDisplayFace::onActivate() const {}
-
+void BGDisplayFace::renderPartial(const RenderContext& ctx) const {}
 RenderDecision BGDisplayFace::getRenderDecision(const RenderContext& ctx) const {
     if (ctx.reason == RenderReason::TIME_TICK) {
         if (ctx.dataIsOld != ctx.wasDataOld) {
