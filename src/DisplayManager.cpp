@@ -142,9 +142,7 @@ void DisplayManager_::setTextColor(uint16_t color) { matrix->setTextColor(color)
 
 void DisplayManager_::clearMatrix(bool updateMatrix) {
     matrix->clear();
-    if (updateMatrix) {
-        matrix->show();
-    }
+    matrix->clear();
 }
 
 // DisplayManager_::printText(int16_t x, int16_t y, const char *text, TEXT_ALIGNMENT alignment, byte
@@ -178,9 +176,7 @@ void DisplayManager_::printText(
     } else {
         matrix->print(text);
     }
-    if (updateMatrix) {
-        matrix->show();
-    }
+    matrix->clear();
 }
 
 void DisplayManager_::drawBitmap(
@@ -329,7 +325,5 @@ void DisplayManager_::update() { matrix->show(); }
 void DisplayManager_::clearMatrixPart(
     uint8_t x, uint8_t y, uint8_t width, uint8_t height, bool updateMatrix) {
     matrix->fillRect(x, y, width, height, 0);
-    if (updateMatrix) {
-        matrix->show();
-    }
+    matrix->clear();
 }

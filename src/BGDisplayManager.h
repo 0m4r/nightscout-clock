@@ -77,8 +77,10 @@ private:
     std::list<GlucoseReading> displayedReadings;
     std::vector<BGDisplayFace*> faces;
     BGDisplayFace* currentFace;
+    BGDisplayFaceClock* clockFace = nullptr;
     int currentFaceIndex;
     GlucoseIntervals glucoseIntervals;
+<<<<<<< HEAD
     std::map<int, String> facesNames;
     bool lastRenderedDataWasOld = false;
     bool faceCycleActive = false;
@@ -94,6 +96,16 @@ private:
     void commitRenderedState(bool dataIsOld); // Made private
 
 public:
+=======
+    std::map<int, String> facesNames;
+    bool lastRenderedDataWasOld = false;
+
+    void renderCurrentFace(bool dataIsOld);
+    bool shouldUseClockPartialRefresh(bool force, bool dataIsOld) const;
+    void refreshClockFaceTimeAndTimer();
+
+public:
+>>>>>>> b6fca79 (Commit-based screen refresh)
     static BGDisplayManager_& getInstance();
     void setup();
     void tick();
@@ -109,8 +121,16 @@ public:
     void showNextFace(); // Kept public
     void showPreviousFace(); // Kept public
 
+<<<<<<< HEAD
     static void drawTimerBlocks(GlucoseReading lastReading, int width, int xPosition, int yPosition); // Kept public
 };
+=======
+    static void drawTimerBlocks(GlucoseReading lastReading, int width, int xPosition, int yPosition);
+
+private:
+    unsigned long long lastRefreshEpoch = 0;
+};
+>>>>>>> b6fca79 (Commit-based screen refresh)
 
 extern BGDisplayManager_& bgDisplayManager;
 
