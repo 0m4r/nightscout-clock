@@ -221,7 +221,7 @@ void BGDisplayManager_::runRenderCycle(RenderReason reason, const tm& timeInfo) 
             commitRenderedState(dataIsOld);
             return;
         case RenderDecision::FULL:
-            DisplayManager.clearMatrix();
+            DisplayFaceManager.clearMatrix();
             if (displayedReadings.size() > 0) {
                 currentFace->showReadings(displayedReadings, dataIsOld);
             } else {
