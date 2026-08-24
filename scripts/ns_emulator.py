@@ -22,10 +22,6 @@ Usage
 By default the script first DELETEs all existing entries, then sends new ones.
 Pass --no-delete to append instead of replacing.
 
-Handy values (mg/dL, assuming default limits) to exercise the Smiley face moods:
-    50  -> urgent low  -> sad / blue
-    110 -> in range    -> happy / green
-    300 -> urgent high -> angry / red
 
 curl equivalent (no Python needed) -- replace the IP and epoch-millis date:
     # wipe existing readings
@@ -35,6 +31,7 @@ curl equivalent (no Python needed) -- replace the IP and epoch-millis date:
          -H "Content-Type: application/json" \\
          -d '[{"sgv":110,"date":1690000000000,"dateString":"2023-07-22T00:00:00","trend":4}]'
 """
+import argparse
 import json
 import random
 import requests
@@ -43,13 +40,16 @@ from requests_toolbelt.utils import dump
 import math
 import sys
 
+parser = argparse.ArgumentParser(description="Nightscout emulator for the clock's built-in "API" data source.")
+parser.add_argument('--ip', type=str, default="192.168.86.24", help='The IP address of the clock (e.g., 192.168.86.24)')
+parser.add_argument('--no-delete', action='store_true', help='Do not delete existing data before sending new data')
+parser.add_argument('--sin', action='store_true', help='Send sinusoid data')
+parser.add_argument('--one-value', type=int, help='Send a single glucose reading (sgv) value')
+args = parser.parse_args()
+
 # The clock's IP address (with trailing slash). Find it in your router or on the
 # clock's Web UI; it must be running with Data source set to "API".
-nightscout_url = "http://192.168.86.24/"
-# read command arguments:
-# --no-delete: do not delete the existing data
-# --sin: to have sinusoid data
-# --one-value=[value]: to send one value
+nightscout_url = f"http://{args.ip}/"
 
 if "--no-delete" not in sys.argv:
     response = requests.delete(nightscout_url + "api/v1/entries", timeout=2)
