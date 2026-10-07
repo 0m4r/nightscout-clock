@@ -54,8 +54,7 @@ private:
     bool brightnessOverlayShowsAuto = false;
     int brightnessOverlayPercent = 0;
     unsigned long brightnessOverlayStarted = 0;
-    BRIGHTNES_MODE previousAutomaticBrightnessMode = BRIGHTNES_MODE::AUTO_LINEAR;
-    bool previousAutomaticBrightnessModeSaved = false;
+    unsigned long brightnessOverlayLastDraw = 0;
 };
 
 extern DisplayManager_& DisplayManager;
