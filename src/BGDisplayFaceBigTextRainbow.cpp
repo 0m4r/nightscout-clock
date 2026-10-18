@@ -98,3 +98,30 @@ void BGDisplayFaceBigTextRainbow::showAnimatedReading(
         x += DisplayManager.getTextWidth(text, 2);
     }
 }
+
+
+unsigned long BGDisplayFaceBigTextRainbow::getAnimationStepMillis() const { return 80; }
+
+void BGDisplayFaceBigTextRainbow::showAnimationFrame(
+    const std::list<GlucoseReading>& readings, unsigned long frame) const {
+    (void)frame;
+    const GlucoseReading& lastReading = readings.back();
+    DisplayManager.clearMatrix();
+    showAnimatedReading(lastReading);
+    showTrendArrow(lastReading, MATRIX_WIDTH - 5, 1, false, getColorByBGValue(lastReading));
+}
+
+void BGDisplayFaceBigTextRainbow::showAnimatedReading(const GlucoseReading& reading) const {
+    const String readingToDisplay = getPrintableReading(reading.sgv);
+    DisplayManager.setFont(FONT_TYPE::LARGE);
+    const uint8_t hueOffset = (millis() / 20) % 256;
+    const uint8_t textLength = readingToDisplay.length();
+    int16_t x = 0;
+    for (uint8_t i = 0; i < textLength; i++) {
+        char text[2] = {readingToDisplay[i], '\0'};
+        const uint8_t hue = map(i, 0, max((int)textLength, 1), 0, 255) + hueOffset;
+        DisplayManager.setTextColor(getRainbowColor(hue));
+        DisplayManager.printText(x, 7, text, TEXT_ALIGNMENT::LEFT, 2, false);
+        x += DisplayManager.getTextWidth(text, 2);
+    }
+}

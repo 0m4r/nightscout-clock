@@ -48,13 +48,13 @@ void BGDisplayManager_::setup() {
         {"time_only", "Time only", new BGDisplayFaceTimeOnly()},
         {"diagnostics", "Diagnostics", new BGDisplayFaceDiagnostics()},
         {"battery_uptime", "Battery and uptime", new BGDisplayFaceBatteryUptime()},
-        {"big_text_rainbow", "Rainbow big text", new BGDisplayFaceBigTextRainbow()},
         {"smiley", "Smiley", new BGDisplayFaceSmiley()},
         {"simple_dark", "Simple (dark)", new BGDisplayFaceSimpleDark()},
         {"race_car", "Race car", new BGDisplayFaceRaceCar()},
         {"dragon", "Dragon", new BGDisplayFaceDragon()},
         {"big_text_dark", "Big text (dark)", new BGDisplayFaceBigTextDark()},
         {"rainbow_clock", "Rainbow clock", new BGDisplayFaceRainbowClock()},
+        {"big_text_rainbow", "Rainbow big text", new BGDisplayFaceBigTextRainbow()},
     };
 
     if (faces.size() != CLOCK_FACE_COUNT) {

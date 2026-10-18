@@ -11,9 +11,13 @@ public:
     unsigned long getFrequentRefreshIntervalMs() const override;
     RenderDecision getRenderDecision(const RenderContext& ctx) const override;
     bool ticksEverySecond() const override;
+    unsigned long getAnimationStepMillis() const override;
+    void showAnimationFrame(
+        const std::list<GlucoseReading>& readings, unsigned long frame) const override;
 
 private:
     void showAnimatedReading(const GlucoseReading& reading, bool dataIsOld) const;
+    void showAnimatedReading(const GlucoseReading& reading) const;
 };
 
 #endif
