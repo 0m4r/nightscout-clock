@@ -663,7 +663,7 @@ function validateConfig(c, ctx) {
       ? c.custom_nodatatimer
       : 20;
   const oldColor = c.data_old_color || "gray";
-  if (active.includes(3) && (bigText.early_stale_color || "off") !== "off") {
+  if (active.includes("big_text") && (bigText.early_stale_color || "off") !== "off") {
     need(
       "face_big_text_early_stale_color",
       bigText.early_stale_color !== oldColor,
@@ -677,7 +677,7 @@ function validateConfig(c, ctx) {
   }
   // A fresh number in the old data color would read as old data.
   const darkValueColor = (c.face_simple_dark || {}).value_color;
-  if (active.includes(8) || active.includes(11)) {
+  if (active.includes("simple_dark") || active.includes("big_text_dark")) {
     need(
       "face_simple_dark_value_color",
       darkValueColor !== oldColor,
@@ -700,6 +700,7 @@ function validateConfig(c, ctx) {
     text(c.clock_name).length <= 32,
     "The clock name can be at most 32 characters.",
   );
+
 
   // Alarms
   for (const a of ALARMS) {
