@@ -179,6 +179,10 @@ const EARLY_STALE_MINUTES = [
   [10, "10 min"],
   [15, "15 min"],
 ];
+const AGE_DOTS = [
+  ["on", "On"],
+  ["off", "Off"],
+];
 const MANE_MODES = [
   ["still", "Still"],
   ["moving", "Moving"],
@@ -193,6 +197,7 @@ const ANIMATION_SPEEDS = [
   ["normal", "Normal"],
   ["lively", "Lively"],
 ];
+
 // Every color the firmware can draw except black, which is invisible on the black panel. The glucose
 // colors stay on the trend arrow, so the number keeps whichever of these is chosen.
 const DARK_VALUE_COLORS = [
