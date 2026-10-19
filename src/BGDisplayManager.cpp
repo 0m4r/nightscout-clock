@@ -53,9 +53,12 @@ void BGDisplayManager_::setup() {
         {"race_car", "Race car", new BGDisplayFaceRaceCar()},
         {"dragon", "Dragon", new BGDisplayFaceDragon()},
         {"big_text_dark", "Big text (dark)", new BGDisplayFaceBigTextDark()},
+        {"diagnostics", "Diagnostics", new BGDisplayFaceDiagnostics()},
+        {"battery_uptime", "Battery and uptime", new BGDisplayFaceBatteryUptime()},
         {"rainbow_clock", "Rainbow clock", new BGDisplayFaceRainbowClock()},
         {"big_text_rainbow", "Rainbow big text", new BGDisplayFaceBigTextRainbow()},
         {"rainbow_mood", "Rainbow mood", new BGDisplayFaceRainbowMood()},
+        {"smiley", "Smiley", new BGDisplayFaceSmiley()},
     };
 
     if (faces.size() != CLOCK_FACE_COUNT) {
@@ -78,6 +81,8 @@ void BGDisplayManager_::setup() {
     }
 
     currentFace = faces[currentFaceIndex].instance;
+    currentFace->onActivate();
+    DisplayManager.setFont(FONT_TYPE::MEDIUM);
 }
 
 // The active faces are the ones the buttons move between, and the ones cycling runs through.
@@ -134,6 +139,8 @@ void BGDisplayManager_::setFaceByIndex(int index) {
 
     currentFaceIndex = index;
     currentFace = faces[currentFaceIndex].instance;
+    currentFace->onActivate();
+    DisplayManager.setFont(FONT_TYPE::MEDIUM);
     lastRefreshEpoch = 0;
     resetFaceCycleTimer();
     runRenderCycle(RenderReason::FACE_CHANGE, ServerManager.getTimezonedTime());
@@ -213,6 +220,11 @@ void BGDisplayManager_::tick() {
     updateFaceSchedule();
     updateFaceCycle();
     maybeRrefreshScreen();
+    if (!MATRIX_OFF && currentFace->needsFrequentRefresh() &&
+        millis() - lastFrequentRefreshMillis >= currentFace->getFrequentRefreshIntervalMs()) {
+        lastFrequentRefreshMillis = millis();
+        runRenderCycle(RenderReason::FORCED, ServerManager.getTimezonedTime());
+    }
     if (!MATRIX_OFF && drawAnimationFrame(lastRenderedDataWasOld, false)) {
         DisplayManager.update();
     }
